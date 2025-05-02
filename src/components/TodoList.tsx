@@ -26,6 +26,24 @@ export function TodoList() {
   const [newTodo, setNewTodo] = useState("");
   const [fireConfetti, setFireConfetti] = useState(false);
   const previousCompletedCount = useRef(0);
+  // 添加音效引用
+  const addSoundRef = useRef<HTMLAudioElement | null>(null);
+  const completeSoundRef = useRef<HTMLAudioElement | null>(null);
+  const deleteSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  // 初始化音效
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      addSoundRef.current = new Audio("/sounds/add.mp3");
+      completeSoundRef.current = new Audio("/sounds/complete.mp3");
+      deleteSoundRef.current = new Audio("/sounds/delete.mp3");
+      
+      // 预加载音效
+      addSoundRef.current.load();
+      completeSoundRef.current.load();
+      deleteSoundRef.current.load();
+    }
+  }, []);
 
   // 确保存在特定ID的待办事项，并自动滚动到该项
   useEffect(() => {
@@ -63,13 +81,13 @@ export function TodoList() {
           const parent = targetElement.parentElement?.parentElement;
           if (parent) {
             parent.style.transition = "background-color 0.5s ease";
-            parent.style.backgroundColor = "rgba(0, 195, 255, 0.2)";
+            parent.style.backgroundColor = "rgba(255, 173, 0, 0.3)";
             
             setTimeout(() => {
               parent.style.backgroundColor = "transparent";
               
               setTimeout(() => {
-                parent.style.backgroundColor = "rgba(0, 195, 255, 0.2)";
+                parent.style.backgroundColor = "rgba(255, 173, 0, 0.3)";
                 
                 setTimeout(() => {
                   parent.style.backgroundColor = "transparent";
@@ -98,6 +116,8 @@ export function TodoList() {
     
     if (completedCount > previousCompletedCount.current && completedCount > 0) {
       setFireConfetti(true);
+      // 播放完成音效
+      completeSoundRef.current?.play();
     }
     
     previousCompletedCount.current = completedCount;
@@ -106,14 +126,21 @@ export function TodoList() {
   // 添加新待办事项
   const addTodo = () => {
     if (newTodo.trim()) {
-      setTodos([
-        ...todos,
-        {
-          id: Date.now().toString(),
-          text: newTodo,
-          completed: false,
-        },
-      ]);
+      setTodos(prevTodos => {
+        const newTodos = [
+          ...prevTodos,
+          {
+            id: Date.now().toString(),
+            text: newTodo,
+            completed: false,
+          },
+        ];
+        
+        // 播放添加音效
+        addSoundRef.current?.play();
+        
+        return newTodos;
+      });
       setNewTodo("");
     }
   };
@@ -121,9 +148,17 @@ export function TodoList() {
   // 切换待办事项的完成状态
   const toggleTodo = (id: string) => {
     setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
+      todos.map((todo) => {
+        if (todo.id === id) {
+          const newState = { ...todo, completed: !todo.completed };
+          if (newState.completed) {
+            // 播放完成音效
+            completeSoundRef.current?.play();
+          }
+          return newState;
+        }
+        return todo;
+      })
     );
   };
 
@@ -134,6 +169,9 @@ export function TodoList() {
       alert("这是一个重要任务，不能删除！");
       return;
     }
+    
+    // 播放删除音效
+    deleteSoundRef.current?.play();
     
     setTodos(todos.filter((todo) => todo.id !== id));
   };
@@ -153,6 +191,7 @@ export function TodoList() {
   // 手动触发烟花效果（仅用于测试）
   const testFireworks = () => {
     setFireConfetti(true);
+    completeSoundRef.current?.play();
   };
   
   // 聚焦到特定任务
@@ -169,13 +208,13 @@ export function TodoList() {
       const parent = targetElement.parentElement?.parentElement;
       if (parent) {
         parent.style.transition = "background-color 0.5s ease";
-        parent.style.backgroundColor = "rgba(0, 195, 255, 0.2)";
+        parent.style.backgroundColor = "rgba(255, 173, 0, 0.3)";
         
         setTimeout(() => {
           parent.style.backgroundColor = "transparent";
           
           setTimeout(() => {
-            parent.style.backgroundColor = "rgba(0, 195, 255, 0.2)";
+            parent.style.backgroundColor = "rgba(255, 173, 0, 0.3)";
             
             setTimeout(() => {
               parent.style.backgroundColor = "transparent";
@@ -190,30 +229,30 @@ export function TodoList() {
     <>
       <Fireworks fire={fireConfetti} onComplete={resetFireworks} />
       
-      <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-white/20 border border-cyan-200/30 shadow-lg shadow-cyan-500/10">
-        <CardHeader className="border-b border-cyan-200/30">
-          <CardTitle className="text-center text-cyan-50 drop-shadow-sm">待办事项清单</CardTitle>
+      <Card className="w-full max-w-md mx-auto backdrop-blur-md bg-black/30 border border-amber-500/20 shadow-lg shadow-amber-500/10 transform transition-all duration-500 hover:shadow-amber-500/30">
+        <CardHeader className="border-b border-amber-500/20">
+          <CardTitle className="text-center text-amber-100 drop-shadow-sm">待办事项清单</CardTitle>
         </CardHeader>
-        <CardContent className="bg-black/10">
+        <CardContent className="bg-black/40">
           <div className="flex space-x-2 mb-4 mt-4">
             <Input
               placeholder="添加新任务..."
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="bg-cyan-900/20 border-cyan-400/30 text-cyan-50 placeholder:text-cyan-200/50"
+              className="bg-black/50 border-amber-500/30 text-amber-50 placeholder:text-amber-200/50 transition-all duration-300 focus:border-amber-400 focus:ring-amber-400/50"
             />
             <Button 
               onClick={addTodo}
-              className="bg-cyan-600 hover:bg-cyan-500 text-white"
+              className="bg-amber-600/80 hover:bg-amber-500 text-white transition-all duration-300 hover:scale-105"
             >
               添加
             </Button>
           </div>
           
-          <div className="divide-y divide-cyan-200/20">
+          <div className="divide-y divide-amber-500/20">
             {todos.length === 0 ? (
-              <p className="text-center text-cyan-100/70 py-4">暂无待办事项</p>
+              <p className="text-center text-amber-100/70 py-4">暂无待办事项</p>
             ) : (
               todos.map((todo) => (
                 <TodoItem
@@ -228,7 +267,7 @@ export function TodoList() {
             )}
           </div>
           
-          <div className="mt-4 text-sm text-cyan-100/70">
+          <div className="mt-4 text-sm text-amber-100/70">
             总计: {todos.length} | 已完成: {todos.filter(t => t.completed).length}
           </div>
           
@@ -237,7 +276,7 @@ export function TodoList() {
               variant="outline" 
               size="sm" 
               onClick={testFireworks}
-              className="border-cyan-400/30 text-cyan-100 hover:bg-cyan-500/20"
+              className="border-amber-500/30 text-amber-100 hover:bg-amber-500/20 transition-all duration-300 hover:scale-105"
             >
               测试烟花效果
             </Button>
@@ -245,13 +284,15 @@ export function TodoList() {
               variant="outline" 
               size="sm" 
               onClick={focusOnTask} 
-              className="bg-cyan-600/30 text-cyan-100 border-cyan-400/50 hover:bg-cyan-500/40"
+              className="bg-amber-600/30 text-amber-100 border-amber-500/50 hover:bg-amber-500/40 transition-all duration-300 hover:scale-105"
             >
               定位到重要任务
             </Button>
           </div>
         </CardContent>
       </Card>
+      
+      {/* 音效元素 - 预加载通过JS实现 */}
     </>
   );
 } 
