@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import "./tech-cursor.css";
 
 // 粒子类型定义
@@ -20,11 +20,10 @@ export function TechCursor() {
   const cursorTriangleRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [isActive, setIsActive] = useState(false);
   const animationFrameRef = useRef<number | null>(null);
   
   // 创建粒子
-  const createParticle = () => {
+  const createParticle = useCallback(() => {
     const size = Math.random() * 5 + 1;
     const speedX = (Math.random() - 0.5) * 2;
     const speedY = (Math.random() - 0.5) * 2;
@@ -51,10 +50,10 @@ export function TechCursor() {
     };
     
     return newParticle;
-  };
+  }, [mousePosition]);
   
   // 更新和绘制粒子
-  const updateParticles = () => {
+  const updateParticles = useCallback(() => {
     if (!canvasRef.current) return;
     
     const canvas = canvasRef.current;
@@ -100,10 +99,10 @@ export function TechCursor() {
     setParticles(filteredParticles);
     
     animationFrameRef.current = requestAnimationFrame(updateParticles);
-  };
+  }, [particles, createParticle]);
   
   // 设置鼠标位置
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     // 更新粒子系统的鼠标位置
     setMousePosition({ x: e.clientX, y: e.clientY });
     
@@ -112,24 +111,24 @@ export function TechCursor() {
       cursorTriangleRef.current.style.left = `${e.clientX}px`;
       cursorTriangleRef.current.style.top = `${e.clientY}px`;
     }
-  };
+  }, []);
   
   // 处理点击事件
-  const handleMouseDown = () => {
+  const handleMouseDown = useCallback(() => {
     if (cursorTriangleRef.current) {
       cursorTriangleRef.current.classList.add("active");
     }
-  };
+  }, []);
   
   // 处理鼠标释放事件
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     if (cursorTriangleRef.current) {
       cursorTriangleRef.current.classList.remove("active");
     }
-  };
+  }, []);
   
   // 监听可点击元素
-  const handleClickableElements = () => {
+  const handleClickableElements = useCallback(() => {
     const clickableElements = document.querySelectorAll("a, button, input, [role='button'], .clickable");
     
     const handleMouseEnter = () => {
@@ -155,21 +154,20 @@ export function TechCursor() {
         element.removeEventListener("mouseleave", handleMouseLeave);
       });
     };
-  };
+  }, []);
   
   // 调整画布大小
-  const handleResize = () => {
+  const handleResize = useCallback(() => {
     if (!canvasRef.current) return;
     
     canvasRef.current.width = window.innerWidth;
     canvasRef.current.height = window.innerHeight;
-  };
+  }, []);
   
   // 应用科技感鼠标
-  const applyTechCursor = () => {
+  const applyTechCursor = useCallback(() => {
     document.body.classList.add("tech-cursor-active");
-    setIsActive(true);
-  };
+  }, []);
   
   // 初始化和清理
   useEffect(() => {
@@ -203,7 +201,15 @@ export function TechCursor() {
       
       cleanupClickableListeners();
     };
-  }, []);
+  }, [
+    handleMouseMove, 
+    handleMouseDown, 
+    handleMouseUp, 
+    handleResize, 
+    applyTechCursor, 
+    handleClickableElements,
+    updateParticles
+  ]);
   
   // 当鼠标位置或粒子数组变化时，更新动画
   useEffect(() => {
@@ -216,7 +222,7 @@ export function TechCursor() {
     if (particles.length > 100) {
       setParticles(particles.slice(0, 100));
     }
-  }, [mousePosition, particles]);
+  }, [mousePosition, particles, updateParticles]);
   
   // 只有在客户端渲染时才显示
   if (typeof window === "undefined") return null;

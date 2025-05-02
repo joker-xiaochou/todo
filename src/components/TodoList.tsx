@@ -11,6 +11,15 @@ interface Todo {
   id: string;
   text: string;
   completed: boolean;
+  isImportant: boolean; // 添加重要任务标记
+}
+
+// 添加一个用于处理存储的Todo类型
+interface StoredTodo {
+  id: string;
+  text: string;
+  completed: boolean;
+  isImportant?: boolean;
 }
 
 export function TodoList() {
@@ -18,7 +27,15 @@ export function TodoList() {
     // 从本地存储加载待办事项
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("todos");
-      return saved ? JSON.parse(saved) : [];
+      // 确保所有加载的待办事项都有isImportant属性
+      if (saved) {
+        const parsedTodos = JSON.parse(saved) as StoredTodo[];
+        return parsedTodos.map((todo) => ({
+          ...todo,
+          isImportant: todo.isImportant !== undefined ? todo.isImportant : true
+        }));
+      }
+      return [];
     }
     return [];
   });
@@ -45,64 +62,6 @@ export function TodoList() {
     }
   }, []);
 
-  // 确保存在特定ID的待办事项，并自动滚动到该项
-  useEffect(() => {
-    // 特定ID的待办事项
-    const targetId = "1746188032914";
-    const targetText = "重要任务：添加科技感光标效果 ✨";
-    
-    // 检查是否已存在该待办事项
-    const hasTargetTodo = todos.some(todo => todo.id === targetId);
-    
-    // 如果不存在，添加它
-    if (!hasTargetTodo) {
-      setTodos(prevTodos => [
-        ...prevTodos,
-        {
-          id: targetId,
-          text: targetText,
-          completed: false
-        }
-      ]);
-    }
-    
-    // 自动滚动到该元素
-    setTimeout(() => {
-      const targetElement = document.getElementById(`todo-${targetId}`);
-      if (targetElement) {
-        // 向目标元素滚动，添加平滑效果
-        targetElement.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        });
-        
-        // 添加闪烁效果
-        const flashElement = () => {
-          const parent = targetElement.parentElement?.parentElement;
-          if (parent) {
-            parent.style.transition = "background-color 0.5s ease";
-            parent.style.backgroundColor = "rgba(255, 173, 0, 0.3)";
-            
-            setTimeout(() => {
-              parent.style.backgroundColor = "transparent";
-              
-              setTimeout(() => {
-                parent.style.backgroundColor = "rgba(255, 173, 0, 0.3)";
-                
-                setTimeout(() => {
-                  parent.style.backgroundColor = "transparent";
-                }, 500);
-              }, 500);
-            }, 500);
-          }
-        };
-        
-        // 延迟一下再闪烁，等滚动结束
-        setTimeout(flashElement, 500);
-      }
-    }, 500);
-  }, []);
-
   // 将待办事项保存到本地存储
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -123,7 +82,7 @@ export function TodoList() {
     previousCompletedCount.current = completedCount;
   }, [todos]);
 
-  // 添加新待办事项
+  // 添加新待办事项（全部为重要任务）
   const addTodo = () => {
     if (newTodo.trim()) {
       setTodos(prevTodos => {
@@ -133,6 +92,7 @@ export function TodoList() {
             id: Date.now().toString(),
             text: newTodo,
             completed: false,
+            isImportant: true
           },
         ];
         
@@ -164,12 +124,6 @@ export function TodoList() {
 
   // 删除待办事项
   const deleteTodo = (id: string) => {
-    // 防止删除特定ID的待办事项
-    if (id === "1746188032914") {
-      alert("这是一个重要任务，不能删除！");
-      return;
-    }
-    
     // 播放删除音效
     deleteSoundRef.current?.play();
     
@@ -188,50 +142,13 @@ export function TodoList() {
     setFireConfetti(false);
   };
 
-  // 手动触发烟花效果（仅用于测试）
-  const testFireworks = () => {
-    setFireConfetti(true);
-    completeSoundRef.current?.play();
-  };
-  
-  // 聚焦到特定任务
-  const focusOnTask = () => {
-    const targetId = "1746188032914";
-    const targetElement = document.getElementById(`todo-${targetId}`);
-    if (targetElement) {
-      targetElement.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
-      
-      // 添加闪烁效果
-      const parent = targetElement.parentElement?.parentElement;
-      if (parent) {
-        parent.style.transition = "background-color 0.5s ease";
-        parent.style.backgroundColor = "rgba(255, 173, 0, 0.3)";
-        
-        setTimeout(() => {
-          parent.style.backgroundColor = "transparent";
-          
-          setTimeout(() => {
-            parent.style.backgroundColor = "rgba(255, 173, 0, 0.3)";
-            
-            setTimeout(() => {
-              parent.style.backgroundColor = "transparent";
-            }, 500);
-          }, 500);
-        }, 500);
-      }
-    }
-  };
-
   return (
     <>
       <Fireworks fire={fireConfetti} onComplete={resetFireworks} />
       
       <Card className="w-full max-w-md mx-auto backdrop-blur-md bg-black/30 border border-amber-500/20 shadow-lg shadow-amber-500/10 transform transition-all duration-500 hover:shadow-amber-500/30">
         <CardHeader className="border-b border-amber-500/20">
-          <CardTitle className="text-center text-amber-100 drop-shadow-sm">待办事项清单</CardTitle>
+          <CardTitle className="text-center text-amber-100 drop-shadow-sm">重要任务</CardTitle>
         </CardHeader>
         <CardContent className="bg-black/40">
           <div className="flex space-x-2 mb-4 mt-4">
@@ -252,7 +169,7 @@ export function TodoList() {
           
           <div className="divide-y divide-amber-500/20">
             {todos.length === 0 ? (
-              <p className="text-center text-amber-100/70 py-4">暂无待办事项</p>
+              <p className="text-center text-amber-100/70 py-4">暂无任务</p>
             ) : (
               todos.map((todo) => (
                 <TodoItem
@@ -260,6 +177,7 @@ export function TodoList() {
                   id={todo.id}
                   text={todo.text}
                   completed={todo.completed}
+                  isImportant={todo.isImportant}
                   onToggle={toggleTodo}
                   onDelete={deleteTodo}
                 />
@@ -269,25 +187,6 @@ export function TodoList() {
           
           <div className="mt-4 text-sm text-amber-100/70">
             总计: {todos.length} | 已完成: {todos.filter(t => t.completed).length}
-          </div>
-          
-          <div className="mt-4 text-center flex space-x-2 justify-center">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={testFireworks}
-              className="border-amber-500/30 text-amber-100 hover:bg-amber-500/20 transition-all duration-300 hover:scale-105"
-            >
-              测试烟花效果
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={focusOnTask} 
-              className="bg-amber-600/30 text-amber-100 border-amber-500/50 hover:bg-amber-500/40 transition-all duration-300 hover:scale-105"
-            >
-              定位到重要任务
-            </Button>
           </div>
         </CardContent>
       </Card>

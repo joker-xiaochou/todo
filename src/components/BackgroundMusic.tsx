@@ -11,18 +11,20 @@ export function BackgroundMusic() {
   const [showTip, setShowTip] = useState(true);
   
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.3; // 设置默认音量为30%
+    const audioElement = audioRef.current;
+    
+    if (audioElement) {
+      audioElement.volume = 0.3; // 设置默认音量为30%
       
       // 监听音频结束事件以实现循环播放
       const handleEnded = () => {
-        if (audioRef.current) {
-          audioRef.current.currentTime = 0;
-          audioRef.current.play().catch(error => console.error('自动播放失败:', error));
+        if (audioElement) {
+          audioElement.currentTime = 0;
+          audioElement.play().catch(error => console.error('自动播放失败:', error));
         }
       };
       
-      audioRef.current.addEventListener('ended', handleEnded);
+      audioElement.addEventListener('ended', handleEnded);
       
       // 设置5秒后隐藏提示
       const tipTimer = setTimeout(() => {
@@ -30,9 +32,8 @@ export function BackgroundMusic() {
       }, 5000);
       
       return () => {
-        if (audioRef.current) {
-          audioRef.current.removeEventListener('ended', handleEnded);
-        }
+        // 使用缓存的引用进行清理
+        audioElement.removeEventListener('ended', handleEnded);
         clearTimeout(tipTimer);
       };
     }
@@ -112,7 +113,7 @@ export function BackgroundMusic() {
       {/* 提示信息 */}
       {showTip && !isPlaying && (
         <div className="absolute right-16 bg-black/50 text-white rounded-lg px-3 py-2 backdrop-blur-sm music-tooltip">
-          点击播放星穹铁道背景音乐
+          点击播放音乐
         </div>
       )}
     </div>

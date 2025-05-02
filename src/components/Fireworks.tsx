@@ -8,6 +8,9 @@ type FireworksProps = {
   onComplete?: () => void;
 };
 
+// 定义ConfettiInstance类型
+type ConfettiInstance = (options: object) => void;
+
 const canvasStyles = {
   position: 'fixed',
   pointerEvents: 'none',
@@ -19,11 +22,7 @@ const canvasStyles = {
 } as const;
 
 export function Fireworks({ fire, onComplete }: FireworksProps) {
-  const refAnimationInstance = useRef<any>(null);
-
-  const getInstance = useCallback((instance: any) => {
-    refAnimationInstance.current = instance;
-  }, []);
+  const refAnimationInstance = useRef<ConfettiInstance | null>(null);
 
   const makeShot = useCallback((particleRatio: number, opts: object) => {
     refAnimationInstance.current?.({
