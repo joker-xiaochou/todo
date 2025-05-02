@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { TechCursor } from "@/components/TechCursor";
 import { TechBackground } from "@/components/TechBackground";
+import { BackgroundMusic } from "@/components/BackgroundMusic";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <TechBackground />
         <TechCursor />
+        <BackgroundMusic />
         {children}
       </body>
     </html>
