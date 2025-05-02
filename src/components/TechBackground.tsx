@@ -146,10 +146,10 @@ export function TechBackground() {
       ctx.strokeStyle = 'rgba(0, 180, 230, 0.15)';
       
       for (let i = 0; i < circuitCount; i++) {
-        const y = baseY + (Math.random() - 0.5) * canvas.height * 0.8;
+        let currentY = baseY + (Math.random() - 0.5) * canvas.height * 0.8;
         
         ctx.beginPath();
-        ctx.moveTo(0, y);
+        ctx.moveTo(0, currentY);
         
         let x = 0;
         while (x < canvas.width) {
@@ -157,10 +157,10 @@ export function TechBackground() {
           const direction = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
           
           x += segmentLength;
-          const newY = y + direction * (Math.random() * 20 + 10);
+          const newY = currentY + direction * (Math.random() * 20 + 10);
           
           if (direction !== 0) {
-            ctx.lineTo(x - segmentLength / 2, y);
+            ctx.lineTo(x - segmentLength / 2, currentY);
             ctx.lineTo(x - segmentLength / 2, newY);
           }
           
@@ -170,7 +170,7 @@ export function TechBackground() {
             ctx.arc(x, newY, Math.random() * 3 + 1, 0, Math.PI * 2);
           }
           
-          y = newY;
+          currentY = newY;
         }
         
         ctx.stroke();

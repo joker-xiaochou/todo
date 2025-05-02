@@ -59,17 +59,20 @@ export function TodoItem({ id, text, completed, onToggle, onDelete }: TodoItemPr
   }, [id]);
   
   return (
-    <div className="flex items-center justify-between p-4 border-b">
+    <div className="flex items-center justify-between p-4 border-b border-cyan-200/20 transition-colors hover:bg-cyan-600/10">
       <div className="flex items-center gap-2">
         <Checkbox 
           id={`todo-${id}`}
           ref={checkboxRef}
           checked={completed}
           onCheckedChange={() => onToggle(id)}
+          className={id === "1746188032914" ? "glow-checkbox" : ""}
         />
         <label
           htmlFor={`todo-${id}`}
-          className={`text-sm ${completed ? "line-through text-gray-500" : ""}`}
+          className={`text-sm ${completed 
+            ? "line-through text-cyan-300/40" 
+            : "text-cyan-50"} ${id === "1746188032914" ? "font-bold" : ""}`}
         >
           {text}
         </label>
@@ -79,6 +82,7 @@ export function TodoItem({ id, text, completed, onToggle, onDelete }: TodoItemPr
         size="icon"
         onClick={() => onDelete(id)}
         aria-label="删除"
+        className="text-cyan-300 hover:text-cyan-100 hover:bg-cyan-700/30"
       >
         <X className="h-4 w-4" />
       </Button>

@@ -190,24 +190,30 @@ export function TodoList() {
     <>
       <Fireworks fire={fireConfetti} onComplete={resetFireworks} />
       
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="text-center">待办事项清单</CardTitle>
+      <Card className="w-full max-w-md mx-auto backdrop-blur-sm bg-white/20 border border-cyan-200/30 shadow-lg shadow-cyan-500/10">
+        <CardHeader className="border-b border-cyan-200/30">
+          <CardTitle className="text-center text-cyan-50 drop-shadow-sm">待办事项清单</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex space-x-2 mb-4">
+        <CardContent className="bg-black/10">
+          <div className="flex space-x-2 mb-4 mt-4">
             <Input
               placeholder="添加新任务..."
               value={newTodo}
               onChange={(e) => setNewTodo(e.target.value)}
               onKeyDown={handleKeyDown}
+              className="bg-cyan-900/20 border-cyan-400/30 text-cyan-50 placeholder:text-cyan-200/50"
             />
-            <Button onClick={addTodo}>添加</Button>
+            <Button 
+              onClick={addTodo}
+              className="bg-cyan-600 hover:bg-cyan-500 text-white"
+            >
+              添加
+            </Button>
           </div>
           
-          <div className="divide-y">
+          <div className="divide-y divide-cyan-200/20">
             {todos.length === 0 ? (
-              <p className="text-center text-gray-500 py-4">暂无待办事项</p>
+              <p className="text-center text-cyan-100/70 py-4">暂无待办事项</p>
             ) : (
               todos.map((todo) => (
                 <TodoItem
@@ -222,15 +228,25 @@ export function TodoList() {
             )}
           </div>
           
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-cyan-100/70">
             总计: {todos.length} | 已完成: {todos.filter(t => t.completed).length}
           </div>
           
           <div className="mt-4 text-center flex space-x-2 justify-center">
-            <Button variant="outline" size="sm" onClick={testFireworks}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={testFireworks}
+              className="border-cyan-400/30 text-cyan-100 hover:bg-cyan-500/20"
+            >
               测试烟花效果
             </Button>
-            <Button variant="outline" size="sm" onClick={focusOnTask} className="bg-blue-50 text-blue-600 border-blue-300 hover:bg-blue-100">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={focusOnTask} 
+              className="bg-cyan-600/30 text-cyan-100 border-cyan-400/50 hover:bg-cyan-500/40"
+            >
               定位到重要任务
             </Button>
           </div>
