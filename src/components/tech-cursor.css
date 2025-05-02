@@ -1,0 +1,103 @@
+/* 隐藏原始光标 */
+.tech-cursor-active {
+  cursor: none;
+}
+
+/* 三角形科技感光标 */
+.cursor-triangle {
+  pointer-events: none;
+  position: fixed;
+  width: 30px;
+  height: 30px;
+  z-index: 10000;
+  transform: translate(-50%, -50%) rotate(150deg);
+  transition: transform 0.1s ease;
+  will-change: transform;
+}
+
+.cursor-triangle-inner {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  background: linear-gradient(135deg, rgba(200, 200, 200, 0.8) 0%, rgba(50, 50, 50, 0.6) 100%);
+  box-shadow: 
+    inset 0 0 10px rgba(255, 255, 255, 0.5),
+    0 0 15px rgba(0, 220, 255, 0.7);
+  transform-origin: center;
+  transform: rotate(180deg);
+}
+
+.cursor-triangle-glow {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  clip-path: polygon(50% 20%, 85% 90%, 15% 90%);
+  background: linear-gradient(to bottom, rgba(0, 195, 255, 0.9), rgba(0, 100, 200, 0.5));
+  filter: blur(2px);
+  opacity: 0.8;
+  transform-origin: center;
+  transform: rotate(180deg);
+  animation: glowPulse 2s infinite alternate;
+}
+
+.cursor-triangle-line {
+  position: absolute;
+  width: 80%;
+  height: 1px;
+  bottom: 30%;
+  left: 10%;
+  background: rgba(0, 220, 255, 0.9);
+  box-shadow: 0 0 5px rgba(0, 220, 255, 0.9);
+  transform-origin: center;
+  transform: rotate(180deg);
+}
+
+@keyframes glowPulse {
+  0% { opacity: 0.7; filter: blur(2px); }
+  100% { opacity: 1; filter: blur(3px); }
+}
+
+/* 光标点效果 - 隐藏，由三角形代替 */
+.cursor-dot {
+  display: none;
+}
+
+/* 交互时的特效 */
+.cursor-triangle.active {
+  transform: translate(-50%, -50%) rotate(120deg) scale(1.2);
+}
+
+.cursor-triangle.active .cursor-triangle-glow {
+  background: linear-gradient(to bottom, rgba(0, 240, 255, 0.95), rgba(0, 150, 255, 0.7));
+  animation: glowPulse 1s infinite alternate;
+}
+
+/* 可点击元素悬停效果 */
+a:hover,
+button:hover,
+input:hover,
+[role="button"]:hover,
+.clickable:hover {
+  cursor: none;
+}
+
+/* 放大特定的复选框按钮 */
+#todo-1746188032914 {
+  transform: scale(2.0) !important;
+  margin: 10px !important;
+  box-shadow: 0 0 15px rgba(0, 220, 255, 0.7) !important;
+  border-color: rgba(0, 195, 255, 0.9) !important;
+  position: relative;
+  z-index: 100;
+}
+
+/* 复选框标签样式 */
+label[for="todo-1746188032914"] {
+  font-size: 1.25rem !important;
+  font-weight: bold !important;
+  margin-left: 20px !important;
+  color: #0095ff !important;
+} 
