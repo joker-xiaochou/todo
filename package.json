@@ -6,9 +6,16 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "if exist .next rmdir /s /q .next && if exist out rmdir /s /q out",
+    "export": "npm run clean && next build",
+    "cap:sync": "npx cap sync",
+    "cap:build": "npm run export && npx cap copy android",
+    "cap:open": "npx cap open android",
+    "build:android": "npm run export && npx cap sync && npx cap copy android && npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^7.2.0",
     "@capacitor/cli": "^7.2.0",
     "@capacitor/core": "^7.2.0",
     "@radix-ui/react-checkbox": "^1.2.3",
